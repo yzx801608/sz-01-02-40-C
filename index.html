@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二技116年班「孫子兵法」1-2篇 期末考</title>
+  <style>
+      body { background-color: #FFEB3B; font-family: sans-serif; padding: 20px; margin: 0; box-sizing: border-box; }
+      .page { display: none; max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      .active { display: block; }
+      h1 { text-align: center; color: #d32f2f; }
+      .warning { color: #d32f2f; font-weight: bold; margin-bottom: 10px; }
+      input, button { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
+      button { background-color: #4CAF50; color: white; border: none; cursor: pointer; font-weight: bold; }
+      button:hover { opacity: 0.9; }
+      .option { display: block; padding: 10px; margin: 5px 0; border: 1px solid #aaa; border-radius: 5px; cursor: pointer; }
+      .option.selected { background-color: #fff176; border-color: #fbc02d; }
+      #statusMsg { color: #666; font-size: 14px; text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div id="page1" class="page active">
+  <h1>二技116年班「孫子兵法」1-2篇 期末考</h1>
+  <div class="warning">
+      <p>１. 不得查閱任何形式之資料，不得交談或有任何違規、舞弊情事。</p>
+      <p>２. 作答中偵測到離開答題頁面，立即結束測驗並給定成績。</p>
+      <p>３. 完成試卷只有一次機會，不得重覆答卷。</p>
+  </div>
+  <button type="button" id="btnToPage2">確認後，繼續下一步</button>
+</div>
+
+<div id="page2" class="page">
+  <h2>考生資料填寫</h2>
+  <input type="text" id="class" placeholder="班級">
+  <input type="text" id="id" placeholder="學號">
+  <input type="text" id="name" placeholder="姓名">
+  <p style="text-align: center; color: red;"> 作答中偵測到離開答題頁面，立即結束測驗</p>
+  <button type="button" id="btnStartQuiz">輸入通關密碼後開始測驗</button>
+</div>
+
+<div id="page3" class="page">
+  <div id="questionContainer"></div>
+  <div id="navContainer" style="display:flex; gap:10px;">
+      <button id="prevBtn" style="background-color: #757575;">上一題</button>
+      <button id="nextBtn">下一題</button>
+  </div>
+  <button id="submitBtn" style="background-color: #d32f2f; display:none;">交卷</button>
+</div>
+
+<div id="page4" class="page">
+  <h1>測驗結果</h1>
+  <div id="resultInfo"></div>
+  <div id="statusMsg">答案安全同步中，請稍候...</div>
+</div>
+
+<script>
+(function() {
+  const rawQuestions = [
+       { id: 1, q: "《孫子兵法》開宗明義提到「兵者，國之大事」，其中「兵」字在原始字形（甲骨文）中象徵什麼意義？", options: ["(A) 雙手持盾防禦", "(B) 雙手持斧參戰", "(C) 士兵列隊前行", "(D) 戰車衝鋒陷陣"] },
+       { id: 2, q: "在「法」的架構中，「曲制」在現代軍事管理中對應的是什麼？", options: ["(A) 組織架構與編制", "(B) 人事管理與指揮鏈", "(C) 後勤補給與財務", "(D) 武器保養與供應"] },
+       { id: 3, q: "孫子所謂的「計」有三個層次，下列何者「不屬於」這三個層次？", options: ["(A) 計算敵我實力", "(B) 評估戰爭勝算", "(C) 制定策略謀略", "(D) 執行衝鋒計畫"] },
+       { id: 4, q: "關於「五事」與「七計」的關係，下列敘述何者正確？", options: ["(A) 五事是宏觀策略要素，七計是具體項目比較", "(B) 五事是動態變化的手段，七計是永恆不變的原則", "(C) 五事七計大多限於天時、地利的分析", "(D) 兩者完全無關，分別屬於不同篇章"] },
+       { id: 5, q: "在「法」的具體內容中，「官道」強調的是什麼重要性？", options: ["(A) 指揮鏈明確，防止多頭領導", "(B) 物資充沛，糧草先行，路線規劃", "(C) 士兵訓練必須整齊劃一", "(D) 佔據有利地形"] },
+       { id: 6, q: "戚繼光練兵「立於大雨中數小時，不稍動如山嶽」，這是在落實「七計」中的哪一項？", options: ["(A) 天地孰得", "(B) 主孰有道", "(C) 將孰有能", "(D) 士卒孰練"] },
+       { id: 7, q: "孫子說「勢者：因利而制權也」，這裡的「權」字引申為何意？", options: ["(A) 靈活應變", "(B) 絕對權力", "(C) 法律條文", "(D) 軍力規模"] },
+       { id: 8, q: "現代企業「不斷推出新產品迫使對手跟進消耗」，這最符合「十二詭道」中的哪一類？", options: ["(A) 隱匿欺敵", "(B) 對敵弱點", "(C) 避實擊虛", "(D) 主動疲敵"] },
+       { id: 9, q: "「將聽吾計，用之必勝，留之；將不聽吾計，用之必敗，去之。」這裡的「將」字有兩種語法解釋，分別指涉何者？", options: ["(A) 僅指「將領」", "(B) 僅指「表推測語氣」", "(C) 一指「將領」，二指「推測/預期語氣」", "(D) 一指「將領」，二指「國君」"] },
+       { id: 10, q: "孫子強調「計利以聽，乃為之勢，以佐其外」。這句話傳達了什麼關鍵訊息？", options: ["(A) 只要有好的計畫，不需要最高決策者支持也能成功", "(B) 因內部資訊不足，外部輔佐比內部計算更重要", "(C) 戰場態勢是由運氣決定的，計畫只是參考", "(D) 計畫必須獲得國君接受，並依此製造戰場上的有利態勢"] },
+       { id: 11, q: "關於孫子「五事」之「法」的現代解釋，下列何者最能概括其核心價值？", options: ["(A) 制度化管理", "(B) 依法行政，嚴懲不貸", "(C) 法律是保護將帥的工具", "(D) 法律應隨戰場情況隨時作廢"] },
+       { id: 12, q: "孫子對「詭道」的態度，下列敘述何者最符合孫子之意？", options: ["(A) 詭道是獲勝的唯一要素，應好好應用", "(B) 五事是恆久不變的原則，詭道是針對特殊情況的應變手段", "(C) 詭道與仁義完全對立，不應並存，有仁義便無詭道，反之亦然", "(D) 詭道僅適用於進攻，不適用於防禦"] },
+       { id: 13, q: "「夫未戰而廟算勝者，得算多也」。這裡的「算」字，除了計算行為外，在古代還有什麼具體指涉？", options: ["(A) 占卦用的五十根蓍草", "(B) 一種小棍，即籌策", "(C) 戰場地圖與沙盤", "(D) 裝載計畫的錦囊"] },
+       { id: 14, q: "告誡將帥「固守信則愚」，這反映了對將帥德行的何種看法？", options: ["(A) 在戰爭所有情境中，誠信是不必要的", "(B) 德行必須平衡，過度偏執某項德行反而產生負面效果", "(C) 將帥應以愚笨來迷惑敵人", "(D) 誠信只適用於對待國君，不適用於部屬，更不適用於敵人"] },
+       { id: 15, q: "關於「主動疲敵」策略（如：佚而勞之），其核心價值在於？", options: ["(A) 耐心地等待敵人出現弱點", "(B) 節省我方糧草消耗", "(C) 讓敵人因為疲累而停止攻擊", "(D) 透過騷擾調動，為我方創造決勝條件"] },
+       { id: 16, q: "孫子有「多算勝，少算不勝，而況無算乎」的主張。這句話體現了〈計篇〉的什麼核心軍事哲學？", options: ["(A) 唯意志論", "(B) 武器決定論", "(C) 重視理性的事先評估與籌劃", "(D) 戰場上的隨機應變高於一切"] },
+       { id: 17, q: "赤壁之戰前，周瑜以類「五事」的思維模型，為孫權分析必勝的根據，其所指出曹操所犯大忌，不包括以下何者：", options: ["(A) 北方未定，馬騰、韓遂尚在關西為其後休", "(B) 軍隊不擅水戰，棄馬駕船", "(C) 盛夏暴雨，糧食受潮發霉，拖累戰力", "(D) 軍隊遠涉江湖，不服水土，多生疾病"] },
+       { id: 18, q: "依據孫子思想，下列論述何者為非？", options: ["(A) 「五事」之標準含蓋了天、地、人等作戰要素", "(B) 經由五事七計程序，誰勝誰負不待交戰已是事實", "(C) 所謂「乃為之勢，以佐其外」，指的即是「兵者，詭道也」", "(D) 「攻其無備，出其不意」是作戰取勝的要訣"] },
+       { id: 19, q: "因為戰爭中所有要素都在變動之中，充滿各種不確定性，故「西方兵聖」認為戰爭最像賭博；此「西方兵聖」指的是誰？", options: ["(A) 克勞塞維茲", "(B) 蒙哥馬利", "(C) 拿破崙", "(D) 凱撒大帝"] },
+       { id: 20, q: "關於孫武的敘述何者錯誤？", options: ["(A) 曾在越國皇宮中練女兵", "(B) 東周春秋時人", "(C) 本身為齊國人", "(D) 被伍子胥推薦給吳王闔閭"] },
+       { id: 21, q: "日本戰國何人因崇拜孫子，以孫子為師，且其軍旗上有「疾如風，徐如林，侵掠如火，不動如山」之句：", options: ["(A) 德川家康", "(B) 吉備真備", "(C) 豐臣秀吉", "(D) 武田信玄"] },
+       { id: 22, q: "「戰略」、「戰術」之英文拼法分別為：", options: ["(A) stratogy、principle", "(B) strategy、tactics", "(C) philosophy、tectacs", "(D) tectics、strategy"] },
+       { id: 23, q: "下列何者不符合孫子詭道中「亂而取之」之精神？", options: ["(A) 趁火打劫", "(B) 混水摸魚", "(C) 隔岸觀火", "(D) 欲擒故縱"] },
+       { id: 24, q: "孫子提到「日費千金，然後十萬之師舉矣」，這主要在強調戰爭的什麼特點？", options: ["(A) 士兵的戰鬥力與忠誠度", "(B) 極高的資源燃燒與經濟成本", "(C) 先進武器的精良度與使用技能", "(D) 戰略的不變性與戰術的複雜性"] },
+       { id: 25, q: "在〈作戰篇〉的開頭，提到「千里饋糧」，「饋」字是什麼意思？", options: ["(A) 贈送", "(B) 運送", "(C) 製作", "(D) 收藏"] },
+       { id: 26, q: "孫子主張「兵聞拙速，未睹巧之久也」，這句話反映的核心觀念為何？", options: ["(A) 追求完美的慢速戰略，以節省作戰成本", "(B) 寧可不夠完美也要追求速度，避免久戰", "(C) 拙劣的戰術必然快速導致失敗", "(D) 速度不重要，用戰術實現戰略目標的巧思才重要"] },
+       { id: 27, q: "在車戰中，孫子建議「得車十乘以上」時，應該如何處理？", options: ["(A) 全部燒毀，用以摧毁敵人意志", "(B) 歸還敵人，作為和平談判的籌碼", "(C) 賞賜先得者，並換成我方旌旗混合使用", "(D) 依軍禮進獻給國君，作為初戰獲勝的象徵，用以鼓舞士氣"] },
+       { id: 28, q: "〈作戰篇〉總結其核心戰略目標為：", options: ["(A) 兵貴久，不貴勝", "(B) 兵貴勝，不貴久", "(C) 兵貴和，不貴戰", "(D) 兵貴死，不貴生"] },
+       { id: 29, q: "〈作戰篇〉承接〈始計篇〉中「五事」裡的哪一類概念？", options: ["(A) 將：智信仁勇嚴", "(B) 法：曲制、官道、主用", "(C) 道：令民與上同意", "(D) 天：陰陽寒暑"] },
+       { id: 30, q: "關於「兵久四危」，其連鎖崩潰的邏輯順序為何？", options: ["(A) 外部清算→財務崩潰→戰術枯竭", "(B) 戰術枯竭→財務崩潰→外部清算", "(C) 財務崩潰→戰術枯竭→外部清算", "(D) 外部清算→戰術枯竭→財務崩潰"] },
+       { id: 31, q: "孫子說「不盡知用兵之害者，則不能盡知用兵之利也」，這體現了什麼管理思維？", options: ["(A) 不計成本，全力追求利潤", "(B) 先考慮失敗與風險的避害思維", "(C) 極度悲觀主義的思維，行事風格偏於保守", "(D) 積極的樂觀主義，視害處為利益的轉機"] },
+       { id: 32, q: "「役不再籍，糧不三載」的具體含義為何？", options: ["(A) 不反覆動員士兵與多次徵發糧食", "(B) 兵役制度要年年更新，才能招募所須兵力", "(C) 糧食儲存超過三年才是安全儲量", "(D) 徵糧與役男登錄必須確實，方不致反覆作業浪費人力，延誤戰機"] },
+       { id: 33, q: "孫子為何認為「遠輸則百姓貧」？", options: ["(A) 因遠方富裕的國家會吸引人民出走而造成人口下降", "(B) 因為勞役與運糧導致農業生產力下降", "(C) 因為貨物稅率會隨著距離較遠而提高", "(D) 因交通不便，百姓出遠門耗費成本太高"] },
+       { id: 34, q: "孫子計算「食敵一鍾，當吾二十鍾」，這「二十倍」的差距主要是考慮到什麼？", options: ["(A) 敵人的糧食品質好，比較營養", "(B) 運糧過程中的人馬消耗、護衛與意外損耗", "(C) 敵人糧食的市場價格高", "(D) 匯率的差異"] },
+       { id: 35, q: "「拿破崙兵敗俄國」是因為俄國採取了哪種策略反制「因糧於敵」？", options: ["(A) 堅壁清野", "(B) 策略聯盟", "(C) 借力使力", "(D) 遠水救近火"] },
+       { id: 36, q: "孫子在〈作戰篇〉談財務問題，其切入角度與「富國強兵」有何不同？", options: ["(A) 認為戰爭會消耗國家資源，但勝敵益強，對國家長期建設有利", "(B) 從純粹的會計審計談起", "(C) 直接從「戰略執行與保障」的角度談費用預算", "(D) 認為不考慮國庫負擔是獲勝的必要之惡"] },
+       { id: 37, q: "「力屈中原，內虛於家」，句中「中原」指的是？", options: ["(A) 國庫", "(B) 戰場", "(C) 糧食", "(D) 首都"] },
+       { id: 38, q: "「哈馬斯（Hamas）」利用以色列空襲後的殘骸製造火箭彈，這最符合《孫子兵法》中的哪一個核心精神？", options: ["(A) 役不再籍", "(B) 因糧於敵", "(C) 近師者貴賣", "(D) 兵久國利"] },
+       { id: 39, q: "「屈力殫貨」之「殫」音義為何？", options: ["(A) ㄉㄢˋ，維持", "(B) ㄉㄢ，竭盡", "(C) ㄉㄢˋ，輸送", "(D) ㄉㄢ，掠奪"] },
+       { id: 40, q: "將「911 恐攻」案例定義為「因糧於敵」的變體應用，其理由為何？", options: ["(A) 使用了敵方的飛機作為攻擊敵方的武器", "(B) 側反敵方情報人員滲透敵方情報系統，造成一定程度的損害", "(C) 駭入敵方的金融系統，接獲得敵方的經濟援助", "(D) 摧毀了敵方的首都與糧倉，打擊敵方士氣"] }
+  ];
+
+  let questions = [];
+  let userAnswers = {};
+  let currentIndex = 0;
+  let startTime, endTime;
+  let isSubmitted = false;
+  let isQuizStarted = false;
+
+  document.addEventListener("visibilitychange", () => {
+    if (isQuizStarted && !isSubmitted && document.visibilityState === 'hidden') {
+      alert("⚠️ 偵測到您已離開答題頁面，系統將強制結束測驗並交卷！");
+      finishQuiz();
+    }
+  });
+
+  function nextPage(targetId) {
+      const pages = document.getElementsByClassName('page');
+      for (let i = 0; i < pages.length; i++) {
+          pages[i].style.display = 'none';
+      }
+      document.getElementById(targetId).style.display = 'block';
+  }
+
+  function uploadToGoogleForm(cls, id, name, sTime, eTime) {
+      const formActionURL = "https://docs.google.com/forms/d/e/1FAIpQLScK089NfPbM3CmQ6VOkPJShLFUF8IUMRWQQCDsjhwd_Cuzjfg/formResponse";
+      let finalAnsList = [];
+      for (let currentId = 1; currentId <= 40; currentId++) {
+          let foundIdx = questions.findIndex(q => q.id === currentId);
+          let selectedOptIdx = (foundIdx !== -1 && userAnswers[foundIdx] !== undefined) ? userAnswers[foundIdx] : -1;
+          finalAnsList.push(`${currentId}:${selectedOptIdx}`);
+      }
+      const encodedAnswers = finalAnsList.join(",");
+      const formData = new FormData();
+      formData.append("entry.1701110363", cls);
+      formData.append("entry.562469036", id);
+      formData.append("entry.396393197", name);
+      formData.append("entry.1143918102", encodedAnswers);
+      formData.append("entry.990500050", sTime);
+      formData.append("entry.83330138", eTime);
+
+      fetch(formActionURL, { method: "POST", mode: "no-cors", body: formData })
+      .then(() => { document.getElementById('statusMsg').innerText = "✅ 測驗結果已成功傳送至雲端。"; })
+      .catch(() => { alert("傳送失敗，請確認網路連線！"); });
+  }
+
+  function finishQuiz() {
+      if (isSubmitted) return;
+      isSubmitted = true;
+      isQuizStarted = false;
+      endTime = new Date();
+      nextPage('page4');
+      const formatTime = (date) => date.toTimeString().split(' ')[0];
+      const cls = document.getElementById('class').value || "未填";
+      const id = document.getElementById('id').value || "未填";
+      const name = document.getElementById('name').value || "未填";
+      document.getElementById('resultInfo').innerHTML = `<p>班級：${cls}</p><p>學號：${id}</p><p>姓名：${name}</p><p>結束時間：${formatTime(endTime)}</p>`;
+      uploadToGoogleForm(cls, id, name, formatTime(startTime), formatTime(endTime));
+  }
+
+  document.getElementById('btnToPage2').addEventListener('click', () => nextPage('page2'));
+  
+  document.getElementById('btnStartQuiz').addEventListener('click', () => {
+      if (prompt("請輸入今日考試通關密碼：") !== "因利制權") {
+          alert("密碼錯誤");
+          return;
+      }
+      startTime = new Date();
+      isQuizStarted = true;
+      questions = [...rawQuestions].sort(() => Math.random() - 0.5);
+      nextPage('page3');
+      renderQuestion();
+  });
+
+  function renderQuestion() {
+      const q = questions[currentIndex];
+      const container = document.getElementById('questionContainer');
+      container.innerHTML = `第 ${currentIndex + 1}/${questions.length} 題：${q.q}`;
+      q.options.forEach((opt, idx) => {
+          const div = document.createElement('div');
+          div.className = 'option ' + (userAnswers[currentIndex] === idx ? 'selected' : '');
+          div.textContent = opt;
+          div.onclick = () => { userAnswers[currentIndex] = idx; renderQuestion(); };
+          container.appendChild(div);
+      });
+
+      // 邏輯修正：判斷顯示/隱藏按鈕
+      document.getElementById('prevBtn').onclick = () => { if(currentIndex>0){currentIndex--; renderQuestion();} };
+      document.getElementById('nextBtn').onclick = () => { if(currentIndex<questions.length-1){currentIndex++; renderQuestion();} };
+      
+      // 當在最後一題時，隱藏「下一題」按鈕，顯示「交卷」按鈕
+      if (currentIndex === questions.length - 1) {
+          document.getElementById('nextBtn').style.display = 'none';
+          document.getElementById('submitBtn').style.display = 'block';
+          document.getElementById('submitBtn').onclick = finishQuiz;
+      } else {
+          document.getElementById('nextBtn').style.display = 'block';
+          document.getElementById('submitBtn').style.display = 'none';
+      }
+  }
+})();
+</script>
+</body>
+</html>
