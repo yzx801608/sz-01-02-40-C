@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>二技116年班「孫子兵法」期末考</title>
   <style>
-      /* 1. 基礎底層防護：禁止全頁面文字選取、禁止圖片與物件拖曳 */
       body { 
           background-color: #FFEB3B; 
           font-family: sans-serif; 
@@ -19,12 +18,10 @@
           -webkit-user-drag: none;   
       }
       
-      /* 反智慧鏡頭 OCR 辨識干擾微調 */
       #questionContainer, .option {
           text-shadow: 0 0 0.2px rgba(0,0,0,0.1); 
       }
       
-      /* 允許輸入框、按鈕和選項正常互動 */
       input, button, .option {
           -webkit-user-select: text;
           -moz-user-select: text;
@@ -50,7 +47,7 @@
   <h1>二技116年班「孫子兵法」 期末考</h1>
   <div class="warning">
       <p>１. 不得查閱任何形式之資料，不得交談或有任何違規、舞弊情事。</p>
-      <p>２. 【核心警告：作答中只要切換視窗、點擊擴充功能、開啟其他 App 或離開答題頁面，系統將判定為舞弊並「立即強制結束測驗且提交答案」】。</p>
+      <p>２. 【核心警告：作答中只要切換視窗、點擊擴充功能、開啟其他 App 、拉出系統選單或離開答題頁面，系統將判定為舞弊並「立即強制結束測驗且提交答案」】。</p>
       <p>３. 完成測驗只有【一次】機會，不得重覆提交；將以表單自動上傳之時間戳記為檢核依據。</p> 
       <p>４. 下一頁【姓名+出生月日4位數】，例：1月25日，輸入格式：王小明0125。與上階段表單所填不相符者，不予計分。</p>
   </div>
@@ -62,7 +59,7 @@
   <input type="text" id="class" placeholder="班級 ＯＯ組">
   <input type="text" id="id" placeholder="學號 末3碼">
   <input type="text" id="name" placeholder="姓名+出生月日４位數">
-  <p style="text-align: center; color: red; font-weight: bold;">⚠️ 開始測驗後，偵測到滑鼠離開或切換視窗，將立即強制交卷！</p>
+  <p style="text-align: center; color: red; font-weight: bold;">⚠️ 開始測驗後，偵測到切換視窗、拉出系統選單或離開，將立即強制交卷！</p>
   <button type="button" id="btnStartQuiz">輸入通關密碼後開始測驗</button>
 </div>
 
@@ -94,7 +91,7 @@
        { id: 8, q: "現代企業「不斷推出新產品迫使對手跟進消耗」，這最符合「十二詭道」中的哪一類？", options: ["(A) 隱匿欺敵", "(B) 對敵弱點", "(C) 避實擊虛", "(D) 主動疲敵"] },
        { id: 9, q: "「將聽吾計，用之必勝，留之；將不聽吾計，用之必敗，去之。」這裡的「將」字有兩種語法解釋，分別指涉何者？", options: ["(A) 僅指「將領」", "(B) 僅指「表推測語氣」", "(C) 一指「將領」，二指「推測/預期語氣」", "(D) 一指「將領」，二指「國君」"] },
        { id: 10, q: "孫子強調「計利以聽，乃為之勢，以佐其外」。這句話傳達了什麼關鍵訊息？", options: ["(A) 只要有好的計畫，不需要最高決策者支持也能成功", "(B) 因內部資訊不足，外部輔佐比內部計算更重要", "(C) 戰場態勢是由運氣決定的，計畫只是參考", "(D) 計畫必須獲得國君接受，並依此製造戰場上的有利態勢"] },
-       { id: 11, q: "關於孫子「五事」之「法」的現代解釋，下列何者最能概括其核心價值？", options: ["(A) 制度化管理", "(B) 依法行政，嚴懲不貸", "(C) 法律是保護將帥的工具", "(D) 法律應隨戰場情況隨時作廢"] },
+       { id: 11, q: "關於孫子「五事」之「法」的現代解释，下列何者最能概括其核心價值？", options: ["(A) 制度化管理", "(B) 依法行政，嚴懲不貸", "(C) 法律是保護將帥的工具", "(D) 法律應隨戰場情況隨時作廢"] },
        { id: 12, q: "孫子對「詭道」的態度，下列敘述何者最符合孫子之意？", options: ["(A) 詭道是獲勝的唯一要素，應好好應用", "(B) 五事是恆久不變的原則，詭道是針對特殊情況的應變手段", "(C) 詭道與仁義完全對立，不應並存，有仁義便無詭道，反之亦然", "(D) 詭道僅適用於進攻，不適用於防禦"] },
        { id: 13, q: "「夫未戰而廟算勝者，得算多也」。這裡的「算」字，除了計算行為外，在古代還有什麼具體指涉？", options: ["(A) 占卦用的五十根蓍草", "(B) 一種小棍，即籌策", "(C) 戰場地圖與沙盤", "(D)裝載計畫的錦囊"] },
        { id: 14, q: "告誡將帥「固守信則愚」，這反映了對將帥德行的何種看法？", options: ["(A) 在戰爭所有情境中，誠信是不必要的", "(B) 德行必須平衡，過度偏執某項德行反而產生負面效果", "(C) 將帥應以愚笨來迷惑敵人", "(D) 誠信只適用於對待國君，不適用於部屬，更不適用於敵人"] },
@@ -128,7 +125,7 @@
        { id: 42, q: "「根據敵我雙方軍事、政治、經濟、外交、地理等因素，照顧戰爭全局各方面、各階段之間的關係，規定軍事力量的準備和運用，有勝利把握，才委任統帥帶兵出征，這種對戰爭全局之籌劃和指導方針......」，以上論述不能概括為下列哪一個概念？", options: ["(A) 廟算", "(B) 戰略", "(C) 大謀", "(D) 戰術"] },
        { id: 43, q: "「力量的建立、分配與運用」最適合用來說明以下何者？", options: ["(A) battle", "(B) strategy", "(C) strength", "(D) bortunity"] },
        { id: 44, q: "下列何者屬於「軟實力」？", options: ["(A) 糧食儲備", "(B) 兵器多寡", "(C) 運籌帷幄", "(D) 兵員數量"] },
-       { id: 45, q: "〈作戰篇〉對吾人的啟示，下列論述何者有誤？", options: ["(A) 戰爭的目的是勝，不是久，故打法「寧拙毋巧」是可以接受的", "(B) 勝，意味著打敗敵人，使敵人屈服於自己的意志", "(C) 為了避免過度消耗，無論何種情況，在戰略或戰術上，都必須速戰速決", "(D) 二戰時期，日軍侵華導致其國內民生凋敝，物質匱乏，是因其無法速戰速決所致"] }, 
+       { id: 45, q: "〈作戰篇〉對吾人的啟示，下列論述何者有誤？", options: ["(A) 戰爭的目的是勝，不是久，故打法「寧拙毋巧」是可以接受的", "(B) 勝，意味著打敗敵人，使敵人屈服於自己的意志", "(C) 為了避免過度消耗，無論何種情況，在戰略 or 戰術上，都必須速戰速決", "(D) 二戰時期，日軍侵華導致其國內民生凋敝，物質匱乏，是因其無法速戰速決所致"] }, 
        { id: 46, q: "將「911 恐攻」案例定義為「因糧於敵」的變體應用，其理由為何？", options: ["(A) 使用了敵方的飛機作為攻擊敵方的武器", "(B) 側反敵方情報人員滲透敵方情報系統，造成一定程度的損害", "(C) 駭入敵方的金融系統，接獲得敵方的經濟援助", "(D) 摧毀了敵方的首都與糧倉，打擊敵方士氣"] }
   ];
 
@@ -137,25 +134,60 @@
   let currentIndex = 0;
   let startTime, endTime;
   let isSubmitted = false;
-  let isQuizStarted = false; // 核心防弊開關
+  let isQuizStarted = false; 
+
+  // iOS 核心防護：時間戳記與心跳計時器
+  let lastHeartbeatTime = Date.now();
+  let heartbeatInterval = null;
 
   // =======================================================
-  // 防弊核心監聽
+  // 傳統防弊監聽（主要防 Android/PC）
   // =======================================================
-  
   window.addEventListener("blur", () => {
     if (isQuizStarted && !isSubmitted) {
-      alert("🚨 系統偵測到您已離開考卷視窗（可能原因：開啟智慧鏡頭、切換視窗、使用截圖工具或開啟其他 App）。測驗立即終止並強制交卷！");
-      finishQuiz();
+      triggerCheatDetection("偵測到您已離開考卷視窗！");
     }
   });
 
   document.addEventListener("visibilitychange", () => {
     if (isQuizStarted && !isSubmitted && document.visibilityState === 'hidden') {
-      alert("🚨 偵測到您已離開答題頁面，系統強制結束測驗並交卷！");
-      finishQuiz();
+      triggerCheatDetection("偵測到您已離開答題頁面！");
     }
   });
+
+  // =======================================================
+  // iOS 救星：心跳偵測（抓 JS 被系統凍結的時間差）
+  // =======================================================
+  function startHeartbeatCheck() {
+      lastHeartbeatTime = Date.now();
+      
+      // 每 300 毫秒跳動一次
+      heartbeatInterval = setInterval(() => {
+          if (!isQuizStarted || isSubmitted) {
+              clearInterval(heartbeatInterval);
+              return;
+          }
+          
+          const currentTime = Date.now();
+          const timePassed = currentTime - lastHeartbeatTime;
+          
+          // 正常情況下 timePassed 應該接近 300ms
+          // 如果大於 1200ms (1.2秒)，代表 JS 執行緒曾被 iOS 系統強行凍結（即學生拉出選單、切換 App、或截圖）
+          if (timePassed > 1200) {
+              clearInterval(heartbeatInterval);
+              triggerCheatDetection("偵測到系統中斷（可能原因：拉出控制/通知中心、切換 App 或使用系統截圖）。");
+              return;
+          }
+          
+          lastHeartbeatTime = currentTime;
+      }, 300);
+  }
+
+  function triggerCheatDetection(reason) {
+      if (isSubmitted) return;
+      alert(`🚨 舞弊警告：${reason}\n系統已立即終止測驗並強制交卷！`);
+      finishQuiz();
+  }
 
   function nextPage(targetId) {
       const pages = document.getElementsByClassName('page');
@@ -191,6 +223,7 @@
       if (isSubmitted) return;
       isSubmitted = true;
       isQuizStarted = false; 
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
       endTime = new Date();
       nextPage('page4');
       const formatTime = (date) => date.toTimeString().split(' ')[0];
@@ -204,23 +237,21 @@
   document.getElementById('btnToPage2').addEventListener('click', () => nextPage('page2'));
   
   document.getElementById('btnStartQuiz').addEventListener('click', () => {
-      // 1. 跳出密碼對話框（此時失焦安全過關）
       const passwordInput = prompt("請輸入今日考試通關密碼：");
       if (passwordInput !== "因利制權") {
           alert("密碼錯誤");
           return;
       }
       
-      // 2. 密碼正確，初始化考試設定
       startTime = new Date();
       questions = [...rawQuestions].sort(() => Math.random() - 0.5);
       nextPage('page3');
       renderQuestion();
 
-      // 3. 【核心修正】延遲 1 秒再開啟防弊開關！
-      // 確保 prompt 完全關閉、瀏覽器焦點安全回歸網頁後，才正式啟動監聽。
+      // 密碼關閉 1 秒後，同時開起傳統監聽與 iOS 心跳監聽
       setTimeout(() => {
           isQuizStarted = true;
+          startHeartbeatCheck();
       }, 1000);
   });
 
