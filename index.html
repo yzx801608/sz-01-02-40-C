@@ -2,13 +2,13 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>二技116年班「孫子兵法」期末考</title>
   <style>
       body { 
           background-color: #FFEB3B; 
-          font-family: sans-serif; 
-          padding: 20px; 
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+          padding: 15px; 
           margin: 0; 
           box-sizing: border-box; 
           -webkit-user-select: none; 
@@ -16,13 +16,13 @@
       }
       .page { display: none; max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
       .active { display: block; }
-      h1 { text-align: center; color: #d32f2f; }
-      .warning { color: #d32f2f; font-weight: bold; margin-bottom: 10px; }
+      h1 { text-align: center; color: #d32f2f; font-size: 24px; }
+      .warning { color: #d32f2f; font-weight: bold; margin-bottom: 10px; font-size: 15px; line-height: 1.6; }
       input, button { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
       button { background-color: #4CAF50; color: white; border: none; cursor: pointer; font-weight: bold; }
       button:hover { opacity: 0.9; }
       
-      /* Canvas 考卷畫布樣式 */
+      /* 高畫質 Canvas 外觀控制 */
       #quizCanvas {
           width: 100%;
           height: auto;
@@ -30,6 +30,8 @@
           cursor: pointer;
           display: block;
           margin-bottom: 15px;
+          border-radius: 8px;
+          border: 1px solid #e0e0e0;
       }
       #statusMsg { color: #666; font-size: 14px; text-align: center; margin-top: 10px; }
   </style>
@@ -37,7 +39,7 @@
 <body>
 
 <div id="page1" class="page active">
-  <h1>二技116年班「孫子兵法」 期末考</h1>
+  <h1>二技116年班「孫子兵法」<br>期末考</h1>
   <div class="warning">
       <p>１. 不得查閱任何形式之資料，不得交談或有任何違規、舞弊情事。</p>
       <p>２. 【核心警告：作答中只要切換視窗、點擊擴充功能、開啟其他 App 、拉出系統選單或離開答題頁面，系統將判定為舞弊並「立即強制結束測驗且提交答案」】。</p>
@@ -52,12 +54,12 @@
   <input type="text" id="class" placeholder="班級 ＯＯ組">
   <input type="text" id="id" placeholder="學號 末3碼">
   <input type="text" id="name" placeholder="姓名+出生月日４位數">
-  <p style="text-align: center; color: red; font-weight: bold;">⚠️ 開始測驗後，偵測到切換視窗、拉出系統選單或離開，將立即強制交卷！</p>
+  <p style="text-align: center; color: red; font-weight: bold; font-size: 14px;">⚠️ 開始測驗後，偵測到切換視窗、拉出系統選單或離開，將立即強制交卷！</p>
   <button type="button" id="btnStartQuiz">輸入通關密碼後開始測驗</button>
 </div>
 
 <div id="page3" class="page">
-  <canvas id="quizCanvas" width="600" height="450"></canvas>
+  <canvas id="quizCanvas" width="1200" height="1100"></canvas>
   
   <div id="navContainer" style="display:flex; gap:10px;">
       <button id="prevBtn" style="background-color: #757575;">上一題</button>
@@ -74,7 +76,6 @@
 
 <script>
 (function() {
-  // 題目資料庫（與前版本相同）
   const rawQuestions = [
        { id: 1, q: "《孫子兵法》開宗明義提到「兵者，國之大事」，其中「兵」字在原始字形（甲骨文）中象徵什麼意義？", options: ["(A) 雙手持盾防禦", "(B) 雙手持斧參戰", "(C) 士兵列隊前行", "(D) 戰車衝鋒陷陣"] },
        { id: 2, q: "在「法」的架構中，「曲制」在現代軍事管理中對應的是什麼？", options: ["(A) 組織架構與編制", "(B) 人事管理與指揮鏈", "(C) 後勤補給與財務", "(D) 武器保養與供應"] },
@@ -133,11 +134,8 @@
 
   let lastHeartbeatTime = Date.now();
   let heartbeatInterval = null;
-
-  // Canvas 點擊區域記錄
   let optionAreas = [];
 
-  // 傳統與 iOS 心跳監聽
   window.addEventListener("blur", () => { if (isQuizStarted && !isSubmitted) triggerCheatDetection("離開視窗！"); });
   document.addEventListener("visibilitychange", () => { if (isQuizStarted && !isSubmitted && document.visibilityState === 'hidden') triggerCheatDetection("離開頁面！"); });
 
@@ -147,7 +145,7 @@
           if (!isQuizStarted || isSubmitted) { clearInterval(heartbeatInterval); return; }
           const currentTime = Date.now();
           const timePassed = currentTime - lastHeartbeatTime;
-          if (timePassed > 600) { // 壓低至 600ms，只要觸發外部延伸功能，卡頓立刻抓
+          if (timePassed > 600) { 
               clearInterval(heartbeatInterval);
               triggerCheatDetection("系統中斷（禁止啟動快捷工具、下拉功能或截圖）。");
               return;
@@ -206,7 +204,7 @@
   document.getElementById('btnToPage2').addEventListener('click', () => nextPage('page2'));
   document.getElementById('btnStartQuiz').addEventListener('click', () => {
       const passwordInput = prompt("請輸入今日考試通關密碼：");
-      if (passwordInput !== "誠實榮譽") { alert("密碼錯誤"); return; }
+      if (passwordInput !== "因利制權") { alert("密碼錯誤"); return; }
       startTime = new Date();
       questions = [...rawQuestions].sort(() => Math.random() - 0.5);
       nextPage('page3');
@@ -216,22 +214,30 @@
   });
 
   // =======================================================
-  // 核心邏輯：Canvas 圖形化考卷繪製系統
+  // Canvas 圖形化考卷繪製系統（高解析大字體優化版）
   // =======================================================
   const canvas = document.getElementById('quizCanvas');
   const ctx = canvas.getContext('2d');
 
   function initCanvas() {
-      canvas.addEventListener('click', function(e) {
+      // 支援手機高難度精準觸發與縮放點擊
+      const clickHandler = function(e) {
           if (!isQuizStarted || isSubmitted) return;
-          // 計算點擊在 Canvas 內部的正確座標
           const rect = canvas.getBoundingClientRect();
           const scaleX = canvas.width / rect.width;
           const scaleY = canvas.height / rect.height;
-          const clickX = (e.clientX - rect.left) * scaleX;
-          const clickY = (e.clientY - rect.top) * scaleY;
+          
+          let clientX = e.clientX;
+          let clientY = e.clientY;
+          
+          if (e.touches && e.touches[0]) {
+              clientX = e.touches[0].clientX;
+              clientY = e.touches[0].clientY;
+          }
+          
+          const clickX = (clientX - rect.left) * scaleX;
+          const clickY = (clientY - rect.top) * scaleY;
 
-          // 判斷點擊了哪一個選項區域
           for (let area of optionAreas) {
               if (clickX >= area.x && clickX <= area.x + area.w && clickY >= area.y && clickY <= area.y + area.h) {
                   userAnswers[currentIndex] = area.index;
@@ -239,10 +245,11 @@
                   break;
               }
           }
-      });
+      };
+      canvas.addEventListener('click', clickHandler);
   }
 
-  // 輔助文字自動斷行
+  // 斷行演算法（同步放大字體間距控制）
   function wrapText(context, text, x, y, maxWidth, lineHeight) {
       const words = text.split('');
       let line = '';
@@ -263,51 +270,50 @@
   }
 
   function renderCanvasQuestion() {
-      // 清空畫布
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       optionAreas = [];
 
       const q = questions[currentIndex];
       
-      // 1. 繪製題號與題幹
-      ctx.fillStyle = "#333333";
-      ctx.font = "bold 20px sans-serif";
-      const titleText = `第 ${currentIndex + 1}/${questions.length} 題：`;
-      ctx.fillText(titleText, 20, 40);
+      // 1. 繪製頂部進度（大字體 36px）
+      ctx.fillStyle = "#111111";
+      ctx.font = "bold 36px -apple-system, sans-serif";
+      const titleText = `第 ${currentIndex + 1}/${questions.length} 題`;
+      ctx.fillText(titleText, 40, 70);
       
-      ctx.font = "18px sans-serif";
-      // 動態計算題幹高度
-      let nextY = wrapText(ctx, q.q, 20, 75, 560, 26);
-      nextY += 15; // 留白
+      // 2. 繪製題幹題目（加大至 34px，大幅提升易讀性）
+      ctx.font = "bold 34px -apple-system, sans-serif";
+      ctx.fillStyle = "#222222";
+      let nextY = wrapText(ctx, q.q, 40, 140, 1120, 52);
+      nextY += 40; // 留白高度
 
-      // 2. 繪製四個選項
+      // 3. 繪製四個選項（每格寬度優化、文字加大至 32px）
       q.options.forEach((opt, idx) => {
           const isSelected = (userAnswers[currentIndex] === idx);
           
-          // 記錄該選項按鈕的繪製範圍
-          const area = { x: 20, y: nextY, w: 560, h: 50, index: idx };
+          // 選項按鈕大小加倍（高度 100px 方便手指點擊）
+          const area = { x: 40, y: nextY, w: 1120, h: 100, index: idx };
           optionAreas.push(area);
 
-          // 畫選項外框底色
-          ctx.strokeStyle = "#aaaaaa";
-          ctx.lineWidth = 1;
-          ctx.fillStyle = isSelected ? "#fff176" : "#ffffff";
-          
-          // 圓角矩形外框
+          // 繪製卡片底色與框線
           ctx.beginPath();
-          ctx.roundRect(area.x, area.y, area.w, area.h, 5);
+          ctx.roundRect(area.x, area.y, area.w, area.h, 12);
+          ctx.fillStyle = isSelected ? "#fff59d" : "#f8f9fa"; // 選中時亮黃色，平常淺灰底色
           ctx.fill();
+          
+          ctx.lineWidth = isSelected ? 4 : 2;
+          ctx.strokeStyle = isSelected ? "#fbc02d" : "#cccccc";
           ctx.stroke();
 
-          // 畫選項文字
+          // 繪製選項文字（加大至 32px，垂直居中）
           ctx.fillStyle = "#333333";
-          ctx.font = "16px sans-serif";
-          ctx.fillText(opt, area.x + 15, area.y + 30);
+          ctx.font = "32px -apple-system, sans-serif";
+          ctx.fillText(opt, area.x + 30, area.y + 60);
 
-          nextY += 65; // 前進到下一格選項的 Y 軸
+          nextY += 135; // 下一題選項按鈕的間距
       });
 
-      // 3. 控制下方原生按鈕的顯示
+      // 4. 動態調整畫布高度以符合內容，防止手機版面跑位
       document.getElementById('prevBtn').onclick = () => { if(currentIndex > 0){ currentIndex--; renderCanvasQuestion(); } };
       document.getElementById('nextBtn').onclick = () => { if(currentIndex < questions.length - 1){ currentIndex++; renderCanvasQuestion(); } };
       
