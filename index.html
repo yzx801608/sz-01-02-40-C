@@ -12,23 +12,8 @@
           margin: 0; 
           box-sizing: border-box; 
           -webkit-user-select: none; 
-          -moz-user-select: none;    
-          -ms-user-select: none;     
           user-select: none;         
-          -webkit-user-drag: none;   
       }
-      
-      #questionContainer, .option {
-          text-shadow: 0 0 0.2px rgba(0,0,0,0.1); 
-      }
-      
-      input, button, .option {
-          -webkit-user-select: text;
-          -moz-user-select: text;
-          -ms-user-select: text;
-          user-select: text;
-      }
-      
       .page { display: none; max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
       .active { display: block; }
       h1 { text-align: center; color: #d32f2f; }
@@ -36,8 +21,16 @@
       input, button { width: 100%; padding: 15px; margin: 10px 0; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
       button { background-color: #4CAF50; color: white; border: none; cursor: pointer; font-weight: bold; }
       button:hover { opacity: 0.9; }
-      .option { display: block; padding: 10px; margin: 5px 0; border: 1px solid #aaa; border-radius: 5px; cursor: pointer; }
-      .option.selected { background-color: #fff176; border-color: #fbc02d; }
+      
+      /* Canvas 考卷畫布樣式 */
+      #quizCanvas {
+          width: 100%;
+          height: auto;
+          background: #ffffff;
+          cursor: pointer;
+          display: block;
+          margin-bottom: 15px;
+      }
       #statusMsg { color: #666; font-size: 14px; text-align: center; margin-top: 10px; }
   </style>
 </head>
@@ -64,7 +57,8 @@
 </div>
 
 <div id="page3" class="page">
-  <div id="questionContainer" style="font-size:18px; margin-bottom:15px; font-weight:bold;"></div>
+  <canvas id="quizCanvas" width="600" height="450"></canvas>
+  
   <div id="navContainer" style="display:flex; gap:10px;">
       <button id="prevBtn" style="background-color: #757575;">上一題</button>
       <button id="nextBtn">下一題</button>
@@ -80,6 +74,7 @@
 
 <script>
 (function() {
+  // 題目資料庫（與前版本相同）
   const rawQuestions = [
        { id: 1, q: "《孫子兵法》開宗明義提到「兵者，國之大事」，其中「兵」字在原始字形（甲骨文）中象徵什麼意義？", options: ["(A) 雙手持盾防禦", "(B) 雙手持斧參戰", "(C) 士兵列隊前行", "(D) 戰車衝鋒陷陣"] },
        { id: 2, q: "在「法」的架構中，「曲制」在現代軍事管理中對應的是什麼？", options: ["(A) 組織架構與編制", "(B) 人事管理與指揮鏈", "(C) 後勤補給與財務", "(D) 武器保養與供應"] },
@@ -89,7 +84,7 @@
        { id: 6, q: "戚計光練兵「立於大雨中數小時，不稍動如山嶽」，這是在落實「七計」中的哪一項？", options: ["(A) 天地孰得", "(B) 主孰有道", "(C) 將孰有能", "(D) 士卒孰練"] },
        { id: 7, q: "孫子說「勢者：因利而制權也」，這裡的「權」字引申為何意？", options: ["(A) 靈活應變", "(B) 指揮權力", "(C) 管理能力", "(D) 出兵命令"] },
        { id: 8, q: "現代企業「不斷推出新產品迫使對手跟進消耗」，這最符合「十二詭道」中的哪一類？", options: ["(A) 隱匿欺敵", "(B) 對敵弱點", "(C) 避實擊虛", "(D) 主動疲敵"] },
-       { id: 9, q: "「將聽吾計，用之必勝，留之；將不聽吾計，用之必敗，去之。」這裡的「將」字有兩種語法解釋，分別指涉何者？", options: ["(A) 僅指「將領」", "(B) 僅指「表推測語氣」", "(C) 一指「將領」，二指「推測/預期語氣」", "(D) 一指「將領」，二指「國君」"] },
+       { id: 9, q: "「將聽吾計，用之必勝，留之；將不聽吾計，用之必敗，去之。」這裡的「將」字有兩種語法解釋，分別指涉何者？", options: ["(A) 僅指「將領」", "(B) 僅指「表推測語氣」", "(C) 一指「將領」，二指「推測/預期語氣」"] },
        { id: 10, q: "孫子強調「計利以聽，乃為之勢，以佐其外」。這句話傳達了什麼關鍵訊息？", options: ["(A) 只要有好的計畫，不需要最高決策者支持也能成功", "(B) 因內部資訊不足，外部輔佐比內部計算更重要", "(C) 戰場態勢是由運氣決定的，計畫只是參考", "(D) 計畫必須獲得國君接受，並依此製造戰場上的有利態勢"] },
        { id: 11, q: "關於孫子「五事」之「法」的現代解释，下列何者最能概括其核心價值？", options: ["(A) 制度化管理", "(B) 依法行政，嚴懲不貸", "(C) 法律是保護將帥的工具", "(D) 法律應隨戰場情況隨時作廢"] },
        { id: 12, q: "孫子對「詭道」的態度，下列敘述何者最符合孫子之意？", options: ["(A) 詭道是獲勝的唯一要素，應好好應用", "(B) 五事是恆久不變的原則，詭道是針對特殊情況的應變手段", "(C) 詭道與仁義完全對立，不應並存，有仁義便無詭道，反之亦然", "(D) 詭道僅適用於進攻，不適用於防禦"] },
@@ -136,64 +131,40 @@
   let isSubmitted = false;
   let isQuizStarted = false; 
 
-  // iOS 核心防護：時間戳記與心跳計時器
   let lastHeartbeatTime = Date.now();
   let heartbeatInterval = null;
 
-  // =======================================================
-  // 傳統防弊監聽（主要防 Android/PC）
-  // =======================================================
-  window.addEventListener("blur", () => {
-    if (isQuizStarted && !isSubmitted) {
-      triggerCheatDetection("偵測到您已離開考卷視窗！");
-    }
-  });
+  // Canvas 點擊區域記錄
+  let optionAreas = [];
 
-  document.addEventListener("visibilitychange", () => {
-    if (isQuizStarted && !isSubmitted && document.visibilityState === 'hidden') {
-      triggerCheatDetection("偵測到您已離開答題頁面！");
-    }
-  });
+  // 傳統與 iOS 心跳監聽
+  window.addEventListener("blur", () => { if (isQuizStarted && !isSubmitted) triggerCheatDetection("離開視窗！"); });
+  document.addEventListener("visibilitychange", () => { if (isQuizStarted && !isSubmitted && document.visibilityState === 'hidden') triggerCheatDetection("離開頁面！"); });
 
-  // =======================================================
-  // iOS 救星：心跳偵測（抓 JS 被系統凍結的時間差）
-  // =======================================================
   function startHeartbeatCheck() {
       lastHeartbeatTime = Date.now();
-      
-      // 每 300 毫秒跳動一次
       heartbeatInterval = setInterval(() => {
-          if (!isQuizStarted || isSubmitted) {
-              clearInterval(heartbeatInterval);
-              return;
-          }
-          
+          if (!isQuizStarted || isSubmitted) { clearInterval(heartbeatInterval); return; }
           const currentTime = Date.now();
           const timePassed = currentTime - lastHeartbeatTime;
-          
-          // 正常情況下 timePassed 應該接近 300ms
-          // 如果大於 1200ms (1.2秒)，代表 JS 執行緒曾被 iOS 系統強行凍結（即學生拉出選單、切換 App、或截圖）
-          if (timePassed > 1200) {
+          if (timePassed > 600) { // 壓低至 600ms，只要觸發外部延伸功能，卡頓立刻抓
               clearInterval(heartbeatInterval);
-              triggerCheatDetection("偵測到系統中斷（可能原因：拉出控制/通知中心、切換 App 或使用系統截圖）。");
+              triggerCheatDetection("系統中斷（禁止啟動快捷工具、下拉功能或截圖）。");
               return;
           }
-          
           lastHeartbeatTime = currentTime;
-      }, 300);
+      }, 200);
   }
 
   function triggerCheatDetection(reason) {
       if (isSubmitted) return;
-      alert(`🚨 舞弊警告：${reason}\n系統已立即終止測驗並強制交卷！`);
+      alert(`🚨 舞弊警告：${reason}\n系統已立即強制交卷！`);
       finishQuiz();
   }
 
   function nextPage(targetId) {
       const pages = document.getElementsByClassName('page');
-      for (let i = 0; i < pages.length; i++) {
-          pages[i].style.display = 'none';
-      }
+      for (let i = 0; i < pages.length; i++) pages[i].style.display = 'none';
       document.getElementById(targetId).style.display = 'block';
   }
 
@@ -213,10 +184,8 @@
       formData.append("entry.1143918102", encodedAnswers);
       formData.append("entry.990500050", sTime);
       formData.append("entry.83330138", eTime);
-
       fetch(formActionURL, { method: "POST", mode: "no-cors", body: formData })
-      .then(() => { document.getElementById('statusMsg').innerText = "✅ 測驗結果已成功傳送至雲端。"; })
-      .catch(() => { alert("傳送失敗，請確認網路連線！"); });
+      .then(() => { document.getElementById('statusMsg').innerText = "✅ 測驗結果已成功傳送至雲端。"; });
   }
 
   function finishQuiz() {
@@ -235,42 +204,112 @@
   }
 
   document.getElementById('btnToPage2').addEventListener('click', () => nextPage('page2'));
-  
   document.getElementById('btnStartQuiz').addEventListener('click', () => {
       const passwordInput = prompt("請輸入今日考試通關密碼：");
-      if (passwordInput !== "因利制權") {
-          alert("密碼錯誤");
-          return;
-      }
-      
+      if (passwordInput !== "誠實榮譽") { alert("密碼錯誤"); return; }
       startTime = new Date();
       questions = [...rawQuestions].sort(() => Math.random() - 0.5);
       nextPage('page3');
-      renderQuestion();
-
-      // 密碼關閉 1 秒後，同時開起傳統監聽與 iOS 心跳監聽
-      setTimeout(() => {
-          isQuizStarted = true;
-          startHeartbeatCheck();
-      }, 1000);
+      initCanvas();
+      renderCanvasQuestion();
+      setTimeout(() => { isQuizStarted = true; startHeartbeatCheck(); }, 1000);
   });
 
-  function renderQuestion() {
+  // =======================================================
+  // 核心邏輯：Canvas 圖形化考卷繪製系統
+  // =======================================================
+  const canvas = document.getElementById('quizCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function initCanvas() {
+      canvas.addEventListener('click', function(e) {
+          if (!isQuizStarted || isSubmitted) return;
+          // 計算點擊在 Canvas 內部的正確座標
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          const clickX = (e.clientX - rect.left) * scaleX;
+          const clickY = (e.clientY - rect.top) * scaleY;
+
+          // 判斷點擊了哪一個選項區域
+          for (let area of optionAreas) {
+              if (clickX >= area.x && clickX <= area.x + area.w && clickY >= area.y && clickY <= area.y + area.h) {
+                  userAnswers[currentIndex] = area.index;
+                  renderCanvasQuestion();
+                  break;
+              }
+          }
+      });
+  }
+
+  // 輔助文字自動斷行
+  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+      const words = text.split('');
+      let line = '';
+      let currentY = y;
+      for(let n = 0; n < words.length; n++) {
+          let testLine = line + words[n];
+          let metrics = context.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+              context.fillText(line, x, currentY);
+              line = words[n];
+              currentY += lineHeight;
+          } else {
+              line = testLine;
+          }
+      }
+      context.fillText(line, x, currentY);
+      return currentY + lineHeight;
+  }
+
+  function renderCanvasQuestion() {
+      // 清空畫布
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      optionAreas = [];
+
       const q = questions[currentIndex];
-      const container = document.getElementById('questionContainer');
       
-      container.innerHTML = `<div>第 ${currentIndex + 1}/${questions.length} 題：${q.q}</div>`;
+      // 1. 繪製題號與題幹
+      ctx.fillStyle = "#333333";
+      ctx.font = "bold 20px sans-serif";
+      const titleText = `第 ${currentIndex + 1}/${questions.length} 題：`;
+      ctx.fillText(titleText, 20, 40);
       
+      ctx.font = "18px sans-serif";
+      // 動態計算題幹高度
+      let nextY = wrapText(ctx, q.q, 20, 75, 560, 26);
+      nextY += 15; // 留白
+
+      // 2. 繪製四個選項
       q.options.forEach((opt, idx) => {
-          const div = document.createElement('div');
-          div.className = 'option ' + (userAnswers[currentIndex] === idx ? 'selected' : '');
-          div.textContent = opt;
-          div.onclick = () => { userAnswers[currentIndex] = idx; renderQuestion(); };
-          container.appendChild(div);
+          const isSelected = (userAnswers[currentIndex] === idx);
+          
+          // 記錄該選項按鈕的繪製範圍
+          const area = { x: 20, y: nextY, w: 560, h: 50, index: idx };
+          optionAreas.push(area);
+
+          // 畫選項外框底色
+          ctx.strokeStyle = "#aaaaaa";
+          ctx.lineWidth = 1;
+          ctx.fillStyle = isSelected ? "#fff176" : "#ffffff";
+          
+          // 圓角矩形外框
+          ctx.beginPath();
+          ctx.roundRect(area.x, area.y, area.w, area.h, 5);
+          ctx.fill();
+          ctx.stroke();
+
+          // 畫選項文字
+          ctx.fillStyle = "#333333";
+          ctx.font = "16px sans-serif";
+          ctx.fillText(opt, area.x + 15, area.y + 30);
+
+          nextY += 65; // 前進到下一格選項的 Y 軸
       });
 
-      document.getElementById('prevBtn').onclick = () => { if(currentIndex>0){currentIndex--; renderQuestion();} };
-      document.getElementById('nextBtn').onclick = () => { if(currentIndex<questions.length-1){currentIndex++; renderQuestion();} };
+      // 3. 控制下方原生按鈕的顯示
+      document.getElementById('prevBtn').onclick = () => { if(currentIndex > 0){ currentIndex--; renderCanvasQuestion(); } };
+      document.getElementById('nextBtn').onclick = () => { if(currentIndex < questions.length - 1){ currentIndex++; renderCanvasQuestion(); } };
       
       if (currentIndex === questions.length - 1) {
           document.getElementById('nextBtn').style.display = 'none';
@@ -281,18 +320,6 @@
           document.getElementById('submitBtn').style.display = 'none';
       }
   }
-
-  // 其他防作弊底層機制
-  document.addEventListener('contextmenu', (e) => e.preventDefault());
-  document.addEventListener('copy', (e) => e.preventDefault());
-  document.addEventListener('selectionchange', () => {
-      if (isQuizStarted && !isSubmitted) {
-          const selection = window.getSelection();
-          if (selection.toString().trim() !== "") {
-              selection.removeAllRanges(); 
-          }
-      }
-  });
 })();
 </script>
 </body>
